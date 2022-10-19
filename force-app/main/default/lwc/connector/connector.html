@@ -1,0 +1,118 @@
+<!-- sldsValidatorIgnore -->
+<!--
+  @description       : 
+  @author            : Asadbek@i2max
+  @group             : 
+  @last modified on  : 10-17-2022
+  @last modified by  : Asadbek@i2max
+  Modifications Log
+  Ver   Date         Author          Modification
+  1.0   09-15-2022   Asadbek@i2max   Initial Version
+-->
+<template>
+    <lightning-card title="Insert API Configuration Parameters" icon-name="standard:apex_plugin">
+        <div class="slds-var-m-around_medium">
+            <lightning-input
+            label="Connection Name"
+            onchange={handleNameChange}
+            value={name}
+            class="slds-var-m-bottom_x-small"
+            required
+            >
+            </lightning-input>
+            <lightning-input
+                type="url"
+                label="Endpoint"
+                onchange={handleEndpointChange}
+                value={APIEndpoint}
+                class="slds-var-m-bottom_x-small"
+                required
+            ></lightning-input>
+            <lightning-combobox
+            name="Request Method"
+            label="Request Method"
+            value={requestMethod}
+            placeholder="Select Request Method"
+            options={options}
+            onchange={handleRequestMethod}
+            class="slds-var-m-bottom_x-small" 
+            required>
+        </lightning-combobox>
+        <template if:true={isMethodPost}>
+            <lightning-input
+             label='Body Parameters'
+             onchange={handleBodyParameters}
+             value={bodyParam}
+             class="slds-var-m-bottom_x-small"
+             required
+             >
+            </lightning-input>
+            </template>
+        <lightning-accordion class="accordion"
+        onsectiontoggle={handleToggleSection}
+        active-section-name={activeSections}
+        allow-multiple-sections-open
+        >
+        <lightning-accordion-section label="Url Parameters">
+        <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_3-of-12">
+            <lightning-input
+            label="Key"
+            onchange={handleKeyChange}
+            value={key}
+            ></lightning-input>
+        </div>
+        <div class="slds-col slds-size_3-of-12">
+            <lightning-input 
+            label="Value"
+            onchange={handleValueChange}
+            value={value}
+            >
+        </lightning-input>
+        </div>
+            <lightning-button 
+            variant="brand"
+            label="Add"
+            class="slds-m-top_large"
+            onclick={addUrlParam}
+            >
+        </lightning-button>
+        </div>
+        <template if:true={isUrlParamClicked}>
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_3-of-12">
+                    <lightning-input
+                    label="Key"
+                    onchange={handleKey2Change}
+                    value={key2}
+                    ></lightning-input>
+                </div>
+                <div class="slds-col slds-size_3-of-12">
+                    <lightning-input 
+                    label="Value"
+                    onchange={handleValue2Change}
+                    value={value2}
+                    >
+                </lightning-input>
+                </div>
+            </div>
+        </template>
+        </lightning-accordion-section>
+    </lightning-accordion>
+            <lightning-button
+                class="slds-m-top_large"
+                label="Save"
+                variant="brand"
+                onclick={createConnection}
+                disabled={isButtonDisabled}
+            ></lightning-button>
+
+            <lightning-button
+                label="Clear"
+                variant="brand-outline"
+                class="slds-var-m-left_x-small"
+                onclick={clearRecord}
+            ></lightning-button>
+        </div>
+    </lightning-card>
+</template>

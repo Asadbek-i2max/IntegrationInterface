@@ -1,0 +1,122 @@
+<!-- sldsValidatorIgnore -->
+<!--
+  @description       : 
+  @author            : Asadbek@i2max
+  @group             : 
+  @last modified on  : 10-13-2022
+  @last modified by  : Asadbek@i2max
+  Modifications Log
+  Ver   Date         Author          Modification
+  1.0   09-23-2022   Asadbek@i2max   Initial Version
+-->
+<template>
+    <lightning-card icon-name="action:fallback" title="Perform Callout">
+        <lightning-combobox
+            name="API Endpoint"
+            label="API Endpoints"
+            placeholder="Select Api Call"
+            value={value}
+            options={options}
+            onchange={handleChange}
+            class="slds-var-m-left_medium slds-size_2-of-3"
+            required>
+        </lightning-combobox>
+        <div class="slds-var-m-around_medium">
+            <lightning-input label="Endpoint URL" value={infoUrl} class="slds-var-m-bottom_x-small" disabled></lightning-input>
+            <lightning-input label="Request Method" value={infoMethod} class="slds-var-m-bottom_x-small" disabled></lightning-input>
+            <lightning-input label="Url Parameters" value={infoParams} class="slds-var-m-bottom_x-small" disabled></lightning-input>
+            <div slot="footer">
+                <lightning-button
+                    label="Make Request"
+                    variant="brand"
+                    onclick={performCallout}
+                    disabled={isButtonDisabled}
+                ></lightning-button>
+            </div>
+            <lightning-accordion class="accordion"
+             onsectiontoggle={handleToggleSection}
+             active-section-name={activeSections}
+             allow-multiple-sections-open>
+             <lightning-helptext content="Chose object and fields to store returned data" class="slds-var-m-left_small"></lightning-helptext>
+             <lightning-accordion-section label="Field Mapping">
+                <!-- <lightning-input
+                 name="enter-search" 
+                 label="Search for SObjects" 
+                 type="search"
+                 value={objectValue}
+                 onchange={handleObjectChange}
+                 class="slds-m-bottom_small"
+                 >
+                </lightning-input>
+                <template for:each={objectList} for:item='obj' for:index='index'>
+                  <option key={obj.key}>{obj.value}</option>
+                </template>
+                <template if:true={error}>
+                    <p>Error, while loading data</p>
+                </template> -->
+                <lightning-input type="text" 
+                label="Enter object name" 
+                value={objectValue} 
+                onchange={handleObjectChange}>
+                </lightning-input>
+                <button
+                onclick={handleObjectSearch}
+                class="slds-button slds-button_brand slds-m-top_small"
+                disabled={isObjectButtonDisabled}
+                >
+                Search Object
+                </button>
+                <template if:true={isObjectSelected}>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered slds-m-top_medium">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <!-- <th class="" scope="col">
+                                <div class="slds-truncate" title="JSON Key">Json Key</div>
+                            </th> -->
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Object fields">Object Fields</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Edit">Edit</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={returnedFields} for:item="field">
+                        <tr class="slds-hint-parent" key={field}>
+                            <!-- <th data-label="Json key" scope="row">
+                                <lightning-input type="text" value={jsonTableKey} onchange={handleJsonKeyChange} placeholder="Enter JSON Key"></lightning-input>
+                            </th> -->
+                            <td data-label="Object Fields">
+                                <div class="slds-truncate" title="Object Field">
+                                    {field.value}
+                                </div> 
+                            </td>
+                            <td data-label="Edit">
+                                <div class="slds-grid slds-gutters" title="Edit">
+                                        <lightning-combobox
+                                        name="JSONKeys"
+                                        placeholder="Select JSON key you want to map to"
+                                        value={returnedJsonKeys}
+                                        options={keyOptions}
+                                        onchange={handleKeyChange}
+                                        class="slds-size_4-of-5 slds-m-left_small"
+                                        >
+                                    </lightning-combobox>
+                                    <lightning-button variant="brand-outline" label="Map" title="Mapping button" onclick={handleMapping} 
+                                    class="mapping_button slds-m-left_medium slds-size_1-of-5"></lightning-button>
+                                </div>
+                                <template if:true={isMapped}>
+                                    <lightning-badge label="Mapped" class="slds-badge slds-m-bottom_xx-small slds-theme_success"></lightning-badge>
+                                </template>
+                            </td>
+                        </tr>
+                    </template>
+                    </tbody>
+                </table> 
+                </template>
+             </lightning-accordion-section>
+            </lightning-accordion>
+    </div>
+        </lightning-card>
+</template>
