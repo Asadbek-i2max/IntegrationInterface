@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Asadbek@i2max
  * @group             : 
- * @last modified on  : 10-03-2022
+ * @last modified on  : 10-19-2022
  * @last modified by  : Asadbek@i2max
  * Modifications Log
  * Ver   Date         Author          Modification
@@ -37,6 +37,14 @@ public class ApiEndpointParams {
     public static List<Http_Callout_Configuration__c> getUrlParams(String configId) {
         return [
             SELECT ID, Url_Parameters__c FROM Http_Callout_Configuration__c
+            WHERE ID =: configId
+            WITH SECURITY_ENFORCED
+        ];
+    }
+    @AuraEnabled(cacheable=true)
+    public static List<Http_Callout_Configuration__c> getExtraParams(String configId) {
+        return [
+            SELECT ID, 	Additional_Url_Parameters__c FROM Http_Callout_Configuration__c
             WHERE ID =: configId
             WITH SECURITY_ENFORCED
         ];

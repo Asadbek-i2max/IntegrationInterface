@@ -67,7 +67,10 @@ export default class Connector extends LightningElement {
             connectionName: this.name,
             endpoint: this.APIEndpoint,
             httpMethod: this.requestMethod,
-            urlParameters: this.key+'='+this.value
+            urlKey1: this.key,
+            urlValue1: this.value,
+            urlKey2: this.key2,
+            urlValue2: this.value2
         })
      try {
         this.dispatchEvent(
@@ -90,11 +93,6 @@ export default class Connector extends LightningElement {
      this.name = '';
      this.APIEndpoint = '';
      this.requestMethod = '';
-     this.key = '';
-     this.value = '';
-     this.key2 = '';
-     this.value = '';
-     this.value2 = '';
     }
     clearRecord() {
         this.name = '';

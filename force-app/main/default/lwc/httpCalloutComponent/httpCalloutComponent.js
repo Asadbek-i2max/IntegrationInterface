@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Asadbek@i2max
  * @group             : 
- * @last modified on  : 10-18-2022
+ * @last modified on  : 11-01-2022
  * @last modified by  : Asadbek@i2max
  * Modifications Log
  * Ver   Date         Author          Modification
@@ -14,13 +14,11 @@ import getRecord from '@salesforce/apex/ApiEndpointParams.getRecord';
 import getEndpointUrl from '@salesforce/apex/ApiEndpointParams.getEndpointUrl';
 import getRequestMethod from '@salesforce/apex/ApiEndpointParams.getRequestMethod';
 import getUrlParams from '@salesforce/apex/ApiEndpointParams.getUrlParams';
+import getExtraParams from '@salesforce/apex/ApiEndpointParams.getExtraParams'; 
 import getFields from '@salesforce/apex/ObjectController.getFields';
-// import getFieldName from '@salesforce/apex/ObjectController.getFieldName';
-// import getAllObjects from '@salesforce/apex/ObjectController.getAllObjects';
 
 import { publish, MessageContext } from 'lightning/messageService';
 import JSON_RESPONSE_CHANNEL from '@salesforce/messageChannel/JsonResponse__c';
-import FirstName from '@salesforce/schema/Contact.FirstName';
 export default class HttpCalloutComponent extends LightningElement {
     @track value = '';
     @track items = [];
@@ -29,8 +27,11 @@ export default class HttpCalloutComponent extends LightningElement {
     infoUrl = '';
     infoMethod= '';
     infoParams= '';
+    infoExtraParams = '';
+    responseJson;
     @track keyValue = '';
     jsonKeys = [];
+    jsonValues = [];
     @track returnedJsonKeys = [];
     returnJSONValues = [];
     // @track objectValue = '';
@@ -113,6 +114,14 @@ export default class HttpCalloutComponent extends LightningElement {
         .catch((error) => {
             throw new Error('Error', {cause: error});
         })
+        getExtraParams({configId: selectedOption})
+        .then((data) => {
+            if(data) {
+                for(let i = 0; i < data.length; i++) {
+                     this.infoExtraParams = data[i].Additional_Url_Parameters__c;
+                }
+            }
+        })
     }
     handleToggleSection(event) {
         const openSections = event.detail.openSections;
@@ -125,7 +134,7 @@ export default class HttpCalloutComponent extends LightningElement {
            .then((data) => {
                this.returnedFields = [];
                for(let i = 0; i < data.length; i++) {
-                    this.returnedFields = [...this.returnedFields, {value: data[i]}];
+                    this.returnedFields = [...this.returnedFields, {value: data[i], label: data[i]}];
                }
                this.isObjectSelected = true;
            })
@@ -151,17 +160,32 @@ export default class HttpCalloutComponent extends LightningElement {
     @wire(MessageContext)
     messageContext;
     async performCallout() {
+        if(this.infoExtraParams === '') {
         const response = await fetch(
             this.infoUrl+'?'+this.infoParams, {
                 method: this.infoMethod,
-                haders: {
+                header: {
                     'Accept': 'application/json'
                 }
             }
-        );
-        if(response.ok) {
+        )
+        const responseObject = await response.json();
+        this.responseJson = responseObject;
+        }
+        else if(this.infoExtraParams !== '') {
+            const response = await fetch(
+                this.infoUrl+'?'+this.infoParams+'&'+this.infoExtraParams, {
+                    method: this.infoMethod, 
+                    header: {
+                        'Accept': 'application/json'
+                    }
+                }
+            )
+            const responseObject = await response.json();
+            this.responseJson = responseObject;
+        }
         try {
-        const jsonObject = await response.json();
+        const jsonObject = this.responseJson;
         console.log(jsonObject);
         const jsonObjectKeys = Object.values(jsonObject)[0];
         console.log(jsonObjectKeys);
@@ -170,97 +194,45 @@ export default class HttpCalloutComponent extends LightningElement {
         const jsonObjectKeys4 = Object.keys(jsonObject);
         if(Array.isArray(jsonObject)) {
             jsonObject.forEach(jsonObjectKey => {
-                for(let key in jsonObjectKey) {
-                    console.log(`${key}: ${jsonObjectKey[key]}`);
-                }
                 const keys = Object.keys(jsonObjectKey);
                 this.jsonKeys = keys;
+                console.log(keys);
             })
-            const jsonKeys = this.jsonKeys;
-            for(let i = 0; i < jsonKeys.length; i++) {
-                this.returnedJsonKeys = [...this.returnedJsonKeys, {value: jsonKeys[i], label: jsonKeys[i]}];
-                console.log(this.returnedJsonKeys);
-            }
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Sucessfull request',
-                    message: 'Data is received',
-                    variant: 'success'
-                })
-            );
-            this.infoUrl = '';
-            this.infoMethod = '';
-            this.infoParams = '';
         }
         else if(Array.isArray(jsonObjectKeys)) {
         jsonObjectKeys.forEach(jsonObjectKey => {
-            for(let key in jsonObjectKey) {
-                console.log(`${key}: ${jsonObjectKey[key]}`);
-            }
                const keys = Object.keys(jsonObjectKey);
+               const values = Object.values(jsonObjectKey);
                this.jsonKeys = keys;
+               this.jsonValues = values;
         })
-        const jsonKeys = this.jsonKeys;
-        for(let i = 0; i < jsonKeys.length; i++) {
-            this.returnedJsonKeys = [...this.returnedJsonKeys, {value: jsonKeys[i], label: jsonKeys[i]}];
-        }
-        this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Sucessfull request',
-                        message: 'Data is received',
-                        variant: 'success'
-                    })
-                );
-                this.infoUrl = '';
-                this.infoMethod = '';
-                this.infoParams = '';
         }
         else if(Array.isArray(jsonObjectKeys2)) {
             jsonObjectKeys2.forEach(jsonObjectKey => {
                 const keys2 = Object.keys(jsonObjectKey);
+                const values = Object.values(jsonObjectKey);
                 this.jsonKeys = keys2;
+                this.jsonValues = values;
             })
-            const jsonKeys = this.jsonKeys;
-            for(let i = 0; i < jsonKeys.length; i++) {
-                this.returnedJsonKeys = [...this.returnedJsonKeys, {value: jsonKeys[i], label: jsonKeys[i]}];
-            }
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Sucessfull request',
-                    message: 'Data is received',
-                    variant: 'success'
-                })
-            );
-            this.infoUrl = '';
-            this.infoMethod = '';
-            this.infoParams = '';
         }
         else if(Array.isArray(jsonObjectKeys3)) {
             jsonObjectKeys3.forEach(jsonObjectKey => {
                 const keys3 = Object.keys(jsonObjectKey);
+                const values = Object.values(jsonObjectKey);
                 this.jsonKeys = keys3;
+                this.jsonValues = values;
             })
-            const jsonKeys = this.jsonKeys;
-            for(let i = 0; i < jsonKeys.length; i++) {
-                this.returnedJsonKeys = [...this.returnedJsonKeys, {value: jsonKeys[i], label: jsonKeys[i]}];
-            }
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Sucessfull request',
-                    message: 'Data is received',
-                    variant: 'success'
-                })
-            );
-            this.infoUrl = '';
-            this.infoMethod = '';
-            this.infoParams = '';
         }
         else if(Array.isArray(jsonObjectKeys4)) {
             jsonObjectKeys4.forEach(jsonObjectKey => {
                 const keys4 = Object.keys(jsonObjectKey);
+                // const values = Object.values(jsonObjectKey);
                 this.jsonKeys = keys4;
+                // this.jsonValues = values;
             })
-            const jsonKeys = this.jsonKeys;
+        }
+        const jsonKeys = this.jsonKeys;
+        // const jsonValues = this.jsonValues;
             for(let i = 0; i < jsonKeys.length; i++) {
                 this.returnedJsonKeys = [...this.returnedJsonKeys, {value: jsonKeys[i], label: jsonKeys[i]}];
             }
@@ -274,7 +246,6 @@ export default class HttpCalloutComponent extends LightningElement {
             this.infoUrl = '';
             this.infoMethod = '';
             this.infoParams = '';
-        }
         }
         catch(err) {
         console.log(err);
@@ -291,7 +262,26 @@ export default class HttpCalloutComponent extends LightningElement {
         throw new Error('Error',  {cause: err});
         }
         }
-        // .then((response) => {
+        get keyOptions() {
+           return this.returnedJsonKeys;
+        }
+        handleKeyChange(event) {
+            const idx = this.returnedJsonKeys.findIndex((element) => element.value === event.detail.value);
+            this.returnedJsonKeys[idx] = event.detail.value;
+            console.log(this.returnedJsonKeys[idx]);
+        }
+        handleMapping() {
+           this.isMapped = true;
+        }
+        get isButtonDisabled() {
+            const isEmpty = !(this.infoUrl);
+            return isEmpty;
+        } 
+        get isObjectButtonDisabled() {
+            const isObjectEmpty = !(this.objectValue);
+            return isObjectEmpty;
+        }
+         // .then((response) => {
         //     return response.json();
         // })
         // .then((data) => {
@@ -338,24 +328,4 @@ export default class HttpCalloutComponent extends LightningElement {
         //         })
         //     );
         // })
-        }
-        get keyOptions() {
-           return this.returnedJsonKeys;
-        }
-        handleKeyChange(event) {
-            const idx = this.returnedJsonKeys.findIndex((element) => element.value === event.detail.value);
-            this.returnedJsonKeys[idx] = event.detail.value;
-            console.log(this.returnedJsonKeys[idx]);
-        }
-        handleMapping() {
-           this.isMapped = true;
-        }
-        get isButtonDisabled() {
-            const isEmpty = !(this.infoUrl);
-            return isEmpty;
-        } 
-        get isObjectButtonDisabled() {
-            const isObjectEmpty = !(this.objectValue);
-            return isObjectEmpty;
-        }
     }

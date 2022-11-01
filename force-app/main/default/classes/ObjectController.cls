@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Asadbek@i2max
  * @group             : 
- * @last modified on  : 10-07-2022
+ * @last modified on  : 10-22-2022
  * @last modified by  : Asadbek@i2max
  * Modifications Log
  * Ver   Date         Author          Modification
@@ -46,6 +46,6 @@ public class ObjectController {
                 reqFields.add(fieldName);
             }
             System.debug(reqFields);
-            return reqFields;
+            return reqFields;   
         }
 }
